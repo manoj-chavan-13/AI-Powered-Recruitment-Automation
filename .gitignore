@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+backend/venv/
+venv/
+env/
+.venv/
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Build outputs
+dist/
+dist-ssr/
+frontend/dist/
+build/
+
+# Python cache & tests
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Databases & local uploads
+*.sqlite
+*.sqlite3
+*.db
+backend/*.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.log
