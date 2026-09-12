@@ -59,15 +59,15 @@ TalentIQ solves these challenges with:
 ### High-Level System Topology
 
 ```mermaid
-graph TB
-    subgraph Client Layer ["Client Tier (React 19 + TypeScript + Vite)"]
-        A1[Recruiter ATS Dashboard]
-        A2[Public Careers & Job Portal]
-        A3[Full-Screen Proctored Workstation]
-        A4[TensorFlow.js BlazeFace 3D Engine]
+flowchart TB
+    subgraph ClientLayer ["Client Tier (React 19 + TypeScript + Vite)"]
+        A1["Recruiter ATS Dashboard"]
+        A2["Public Careers & Job Portal"]
+        A3["Full-Screen Proctored Workstation"]
+        A4["TensorFlow.js BlazeFace 3D Engine"]
     end
 
-    subgraph API Gateway ["API Gateway (FastAPI Async Core)"]
+    subgraph APIGateway ["API Gateway (FastAPI Async Core)"]
         B1["/api/v1/auth & /deps"]
         B2["/api/v1/jobs & /pipeline"]
         B3["/api/v1/candidates & /resumes"]
@@ -75,30 +75,38 @@ graph TB
         B5["/api/v1/interviews & /emails"]
     end
 
-    subgraph AI Intelligence Layer ["AI & Computer Vision Engines"]
-        C1[Gemini AI Semantic Screener]
-        C2[Resume Information Extraction]
-        C3[BlazeFace 3D Iris & Pupil Tracker]
-        C4[Dynamic Baseline Calibration]
+    subgraph AIEngines ["AI & Computer Vision Engines"]
+        C1["Gemini AI Semantic Screener"]
+        C2["Resume Information Extraction"]
+        C3["BlazeFace 3D Iris & Pupil Tracker"]
+        C4["Dynamic Baseline Calibration"]
     end
 
-    subgraph Persistence Layer ["Storage & Database Layer"]
-        D1[(SQLAlchemy ORM: SQLite / PostgreSQL)]
-        D2[Encrypted Resume Document Store]
-        D3[Timestamped Proctor Audit Logs]
+    subgraph DataStore ["Storage & Database Layer"]
+        D1[("SQLAlchemy ORM: SQLite / PostgreSQL")]
+        D2["Encrypted Resume Document Store"]
+        D3["Timestamped Proctor Audit Logs"]
     end
 
-    subgraph External Services ["External Dispatch Providers"]
-        E1[SMTP Email Engine: Gmail / SendGrid]
-        E2[Google Meet Conference Dispatcher]
+    subgraph ExternalServices ["External Dispatch Providers"]
+        E1["SMTP Email Engine: Gmail / SendGrid"]
+        E2["Google Meet Conference Dispatcher"]
     end
 
-    A1 & A2 & A3 --> API Gateway
+    A1 --> B1
+    A1 --> B2
+    A2 --> B3
+    A3 --> B4
     A3 <--> A4
-    A4 -.-> C3 & C4
-    B3 --> C1 & C2
-    API Gateway --> Persistence Layer
-    B5 --> External Services
+    A4 -.-> C3
+    A4 -.-> C4
+    B3 --> C1
+    B3 --> C2
+    B2 --> D1
+    B3 --> D2
+    B4 --> D3
+    B5 --> E1
+    B5 --> E2
 ```
 
 ---
@@ -110,7 +118,7 @@ The proctoring engine runs locally inside the candidate's browser at ~2 frames p
 ```mermaid
 sequenceDiagram
     autonumber
-    actor Candidate
+    actor Candidate as Candidate
     participant Camera as Webcam / Video Feed
     participant CV as BlazeFace 3D + Iris Engine
     participant Logic as Strike & Deviation Guard
@@ -120,26 +128,26 @@ sequenceDiagram
     Candidate->>Camera: Live Webcam Video Stream (30 FPS)
     Camera->>CV: Sample Frame (every 550ms)
     CV->>CV: Detect 6 3D Facial Landmarks + Eye Bounding Boxes
-    CV->>CV: Calculate Pupil Offsets (Delta EyeX, Delta EyeY) & Head Angles (Pitch, Yaw)
+    CV->>CV: Calculate Pupil Offsets & Head Angles (Pitch, Yaw)
 
-    alt Face Absent (0 Faces detected >= 3 frames)
+    alt Candidate Absent (No Face Detected)
         CV->>Logic: CRITICAL_VIOLATION: Candidate Absent
         Logic->>API: Immediate Disqualification (Zero Tolerance)
         API->>Candidate: Terminate Session & Lockout
         API->>Recruiter: Log Camera Audit Dossier
-    else Multiple Occupants (>= 2 Faces detected >= 2 frames)
-        CV->>Logic: CRITICAL_VIOLATION: Unauthorized Room Assistance
+    else Multiple Occupants (Unauthorized Assistance)
+        CV->>Logic: CRITICAL_VIOLATION: Room Assistance Detected
         Logic->>API: Immediate Disqualification
-    else Gaze Deviation Detected (Looking at phone / lap, looking away, side glances)
-        alt Prolonged Deviation (> 3.5 seconds uninterrupted)
+    else Gaze Deviation Detected (Looking at phone / lap / away)
+        alt Prolonged Deviation (Over 3.5 seconds uninterrupted)
             Logic->>API: Immediate Auto-Submit (Prolonged Focus Loss)
-        else Natural Reading Movement (< 2 seconds)
+        else Natural Reading Movement (Under 2 seconds)
             Logic->>Logic: Increment Deviation Counter
-            alt Strike Threshold Reached (3 Repeated Patterns)
+            alt Strike Threshold Reached (Pattern Strikes 3/3)
                 Logic->>API: Auto-Submit Test (Pattern Strikes 3/3 Reached)
                 API->>Candidate: Session Disqualified Notice
             else Strike 1 or 2
-                Logic->>Candidate: ⚠️ Warning Toast: Looking down/away detected (X/3)
+                Logic->>Candidate: Warning Toast: Looking down/away detected (X/3)
             end
         end
     else Gaze Centered on Screen
@@ -156,15 +164,15 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> Applied: Resume Submitted via Public Careers Portal
     Applied --> Screening: AI Semantic Evaluation Triggered
-    Screening --> Shortlisted: Candidate Score >= Job Benchmark
-    Screening --> Rejected: Candidate Score < Benchmark
+    Screening --> Shortlisted: Candidate Score Meets Benchmark
+    Screening --> Rejected: Candidate Score Below Benchmark
     Shortlisted --> Assessment: Automated Invite with Secure Assessment Link
     Assessment --> InProgress: Fullscreen Lockdown Initialized
     InProgress --> Terminated: Anti-Cheat Violation Auto-Submit
     InProgress --> Completed: Clean Submission by Candidate
     Terminated --> DossierLogged: Incident Audit Filed
-    Completed --> TechnicalInterview: Assessment Score >= Passing Threshold
-    Completed --> Rejected: Assessment Score < Passing Threshold
+    Completed --> TechnicalInterview: Assessment Score Meets Passing Threshold
+    Completed --> Rejected: Assessment Score Below Passing Threshold
     TechnicalInterview --> Offer: Final Recruiter Approval
     TechnicalInterview --> Rejected: Technical Round Not Met
     Offer --> [*]
@@ -217,12 +225,12 @@ stateDiagram-v2
 
 | Violation Pattern | Technical Detection Algorithm | Detection Sensitivity | Enforcement Action |
 | :--- | :--- | :--- | :--- |
-| **Mobile Phone / Lap Stare** | $\Delta EyeY > 0.32$ or $pitch < 0.22$ | $> 2$ frames (deviation confirmed) | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
-| **Prolonged Phone Focus** | $\Delta EyeY > 0.32$ continuously | $> 3.5$ seconds uninterrupted | **Zero-Tolerance Auto-Submit & Disqualification** |
-| **Side Glances (2nd Monitor)** | $|\Delta EyeX| > 0.32$ or $|yaw| > 0.36$ | $> 2$ frames | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
-| **Ceiling Stare** | $\Delta EyeY < -0.32$ or $pitch > 2.6$ | $> 2$ frames | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
-| **Candidate Absent** | BlazeFace returns 0 faces | $\ge 3$ frames ($> 1.5$s) | **Immediate Auto-Submit & Disqualification** |
-| **Unauthorized Assistance** | BlazeFace returns $\ge 2$ faces | $\ge 2$ frames ($> 1.0$s) | **Immediate Auto-Submit & Disqualification** |
+| **Mobile Phone / Lap Stare** | `ΔEyeY > 0.32` or `pitch < 0.22` | > 2 frames (deviation confirmed) | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
+| **Prolonged Phone Focus** | `ΔEyeY > 0.32` continuously | > 3.5 seconds uninterrupted | **Zero-Tolerance Auto-Submit & Disqualification** |
+| **Side Glances (2nd Monitor)** | `abs(ΔEyeX) > 0.32` or `abs(yaw) > 0.36` | > 2 frames | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
+| **Ceiling Stare** | `ΔEyeY < -0.32` or `pitch > 2.6` | > 2 frames | Warning Toast (Strikes 1 & 2) ➔ **Immediate Auto-Submit on Strike 3** |
+| **Candidate Absent** | BlazeFace returns 0 faces | >= 3 frames (> 1.5s) | **Immediate Auto-Submit & Disqualification** |
+| **Unauthorized Assistance** | BlazeFace returns >= 2 faces | >= 2 frames (> 1.0s) | **Immediate Auto-Submit & Disqualification** |
 | **Fullscreen Breach** | `document.fullscreenElement === null` | Instant event trigger | **Immediate Auto-Submit & Disqualification** |
 | **Window / Tab Navigation** | `document.hidden === true` | Instant event trigger | **Immediate Auto-Submit & Disqualification** |
 | **Clipboard & DevTools** | Clipboard and keyboard event overrides | Instant event trigger | **Prohibited & Alert Toast Displayed** |
